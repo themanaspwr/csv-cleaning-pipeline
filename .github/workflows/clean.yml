@@ -1,0 +1,33 @@
+name: Clean CSV on Push
+
+on:
+  push:
+    paths:
+      - 'raw/*.csv'
+
+jobs:
+  clean_csv:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt || true
+
+      - name: Run CSV cleaner
+        run: python clean_csv.py
+
+      - name: Commit cleaned file
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add processed/
+          git commit -m "Cleaned new CSV"
+          git push
